@@ -1,0 +1,19 @@
+select 
+wh.name,
+wh.city,
+avg(paid_amount) warehouse_order_average,
+from warehouses wh
+left join orders o
+on wh.warehouse_id = o.warehouse_id 
+left join (
+      select city, avg(paid_amount) as city_order_average
+      from warehouses wh
+      left join orders o
+      on wh.warehouse_id = o.warehouse_id 
+      where o.date >= DATE_ADD(CURDATE(), INTERVAL -14 DAY)
+   ) city_avg
+   on wh.city = city_avg.city
+where o.date >= DATE_ADD(CURDATE(), INTERVAL -14 DAY)
+having avg(paid_amount) > avg(city_order_average)
+group by
+1,2
